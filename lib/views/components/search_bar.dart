@@ -1,22 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '/controllers/daftar_resep_controller.dart'; // path ke controller
+import '/controllers/pencarian_controller.dart';
+import '/controllers/daftar_resep_controller.dart';
 
 class HomeSearchBar extends StatefulWidget {
-  const HomeSearchBar({super.key});
+  final TextEditingController? controller;
+  final String? initialValue;
+  final Function(String)? onSubmitted;
+  final VoidCallback? onClear;
+  final EdgeInsetsGeometry? padding;
+  final bool enableNavigation;
+  final String? placeholder;
+
+  const HomeSearchBar({
+    super.key,
+    this.controller,
+    this.initialValue,
+    this.onSubmitted,
+    this.onClear,
+    this.padding,
+    this.enableNavigation = true,
+    this.placeholder,
+  });
 
   @override
   State<HomeSearchBar> createState() => _HomeSearchBarState();
 }
 
 class _HomeSearchBarState extends State<HomeSearchBar> {
-  final TextEditingController searchController = TextEditingController();
+  late TextEditingController searchController;
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    searchController =
+        widget.controller ??
+        TextEditingController(text: widget.initialValue ?? "");
+  }
+
+  @override
+  void dispose() {
+    if (widget.controller == null) {
+      searchController.dispose();
+    }
+    _focusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 6, 20, 4),
+      padding: widget.padding ?? const EdgeInsets.fromLTRB(20, 6, 20, 4),
       child: Row(
         children: [
           Expanded(
@@ -44,13 +80,16 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
+                      readOnly: widget.enableNavigation, // 🔹 ini penting
+                      focusNode: _focusNode,
                       controller: searchController,
                       style: GoogleFonts.poppins(
                         fontSize: 13.5,
                         color: Colors.black87,
                       ),
                       decoration: InputDecoration(
-                        hintText: 'Cari resep atau bahan...',
+                        hintText:
+                            widget.placeholder ?? 'Cari resep atau bahan...',
                         hintStyle: GoogleFonts.poppins(
                           fontSize: 13.5,
                           color: Colors.grey[400],
@@ -60,39 +99,45 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                         contentPadding: const EdgeInsets.symmetric(
                           vertical: 10,
                         ),
-                        // ===== X BUTTON DI PADA RIGHT =====
                         suffixIcon: searchController.text.isEmpty
                             ? null
-                            : GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    searchController.clear();
-                                  });
-                                },
-                                child: const Icon(
+                            : IconButton(
+                                icon: const Icon(
                                   Icons.close_rounded,
                                   size: 18,
                                   color: Colors.grey,
                                 ),
+                                onPressed: () {
+                                  searchController.clear();
+                                  widget.onClear?.call();
+                                  setState(() {});
+                                },
                               ),
                         suffixIconConstraints: const BoxConstraints(
                           minWidth: 30,
                           minHeight: 30,
                         ),
                       ),
-                      onSubmitted: (value) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                DaftarResepController(initialKeyword: value),
-                          ),
-                        );
+                      onTap: () {
+                        if (widget.enableNavigation) {
+                          _focusNode.unfocus(); // hilangkan fokus
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const PencarianController(),
+                            ),
+                          );
+                        }
                       },
-                      onChanged: (_) {
-                        setState(() {}); // refresh X button
+                      onSubmitted: (value) {
+                        if (widget.onSubmitted != null) {
+                          widget.onSubmitted!(value);
+                          searchController.clear();
+                          setState(() {});
+                        }
                       },
                     ),
+
                   ),
                 ],
               ),
@@ -103,7 +148,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
             height: 42,
             width: 42,
             decoration: BoxDecoration(
-              color: const Color(0xFF4CAF50),
+              color: Colors.white,
               borderRadius: BorderRadius.circular(100),
               boxShadow: [
                 BoxShadow(
@@ -115,7 +160,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
             ),
             child: const Icon(
               HugeIcons.strokeRoundedMic01,
-              color: Colors.white,
+              color: Colors.black54,
               size: 22,
             ),
           ),

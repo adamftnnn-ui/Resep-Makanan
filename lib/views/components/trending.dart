@@ -16,6 +16,24 @@ class HomeTrending extends StatelessWidget {
         'time': '15′',
         'serving': '2',
         'rating': 4.8,
+        'ingredients': [
+          'Nasi putih 2 piring',
+          'Telur 2 butir',
+          'Kecap manis 2 sdm',
+          'Bawang merah 3 siung',
+        ],
+        'instructions': [
+          'Panaskan minyak di wajan.',
+          'Tumis bawang hingga harum.',
+          'Masukkan telur, orak-arik hingga matang.',
+          'Tambahkan nasi dan kecap, aduk rata.',
+        ],
+        'nutrition': {
+          'Kalori': '350 kkal',
+          'Protein': '12 g',
+          'Lemak': '10 g',
+          'Karbohidrat': '50 g',
+        },
       },
       {
         'image': 'assets/images/banner2.png',
@@ -25,6 +43,23 @@ class HomeTrending extends StatelessWidget {
         'time': '25′',
         'serving': '3',
         'rating': 4.9,
+        'ingredients': [
+          'Ayam 500 gr',
+          'Madu 3 sdm',
+          'Bawang putih 2 siung',
+          'Garam dan merica secukupnya',
+        ],
+        'instructions': [
+          'Marinasi ayam dengan madu dan bumbu.',
+          'Diamkan 30 menit.',
+          'Bakar ayam hingga matang dan harum.',
+        ],
+        'nutrition': {
+          'Kalori': '420 kkal',
+          'Protein': '35 g',
+          'Lemak': '20 g',
+          'Karbohidrat': '15 g',
+        },
       },
       {
         'image': 'assets/images/banner2.png',
@@ -34,6 +69,23 @@ class HomeTrending extends StatelessWidget {
         'time': '20′',
         'serving': '2',
         'rating': 4.7,
+        'ingredients': [
+          'Mie telur 200 gr',
+          'Sayuran campur 100 gr',
+          'Kecap manis 2 sdm',
+          'Bawang merah 2 siung',
+        ],
+        'instructions': [
+          'Rebus mie hingga matang.',
+          'Tumis bawang dan sayuran.',
+          'Masukkan mie dan kecap, aduk rata.',
+        ],
+        'nutrition': {
+          'Kalori': '300 kkal',
+          'Protein': '10 g',
+          'Lemak': '8 g',
+          'Karbohidrat': '45 g',
+        },
       },
     ];
 
@@ -71,7 +123,7 @@ class HomeTrending extends StatelessWidget {
 
           // ===== LIST OF HomeCardS =====
           SizedBox(
-            height: 190, // Tinggi pas tanpa space
+            height: 190,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
@@ -87,6 +139,9 @@ class HomeTrending extends StatelessWidget {
                   time: item['time'] as String,
                   serving: item['serving'] as String,
                   rating: item['rating'] as double,
+                  ingredients: item['ingredients'] as List<String>,
+                  instructions: item['instructions'] as List<String>,
+                  nutrition: item['nutrition'] as Map<String, String>,
                 );
               },
             ),

@@ -24,7 +24,11 @@ class HomeView extends StatelessWidget {
             Header(user: user),
             const HomeBanner(),
             const Category(),
-            const HomeSearchBar(),
+            HomeSearchBar(
+  placeholder: 'Cari resep atau bahan...',
+  enableNavigation: true,
+),
+
             const HomeSuggestion(),
             const HomeTrending(),
             const HomeEvent(),
