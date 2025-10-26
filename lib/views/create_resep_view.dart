@@ -17,53 +17,14 @@ class _CreateRecipeViewState extends State<CreateRecipeView> {
   final TextEditingController _titleC = TextEditingController();
   final TextEditingController _timeC = TextEditingController();
   final TextEditingController _servingC = TextEditingController();
-  final TextEditingController _ingredientC = TextEditingController();
-  final TextEditingController _stepC = TextEditingController();
-  final TextEditingController _nutritionLabelC = TextEditingController();
-  final TextEditingController _nutritionValueC = TextEditingController();
-
-  final List<String> _ingredients = [];
-  final List<String> _steps = [];
-  final List<Map<String, String>> _nutritions = [];
 
   String? _selectedCountry;
   bool _isHalal = false;
   String? _selectedImage;
 
-  void _addIngredient() {
-    final text = _ingredientC.text.trim();
-    if (text.isNotEmpty) {
-      setState(() {
-        _ingredients.add(text);
-        _ingredientC.clear();
-      });
-      widget.controller.setIngredients(_ingredients);
-    }
-  }
-
-  void _addStep() {
-    final text = _stepC.text.trim();
-    if (text.isNotEmpty) {
-      setState(() {
-        _steps.add(text);
-        _stepC.clear();
-      });
-      widget.controller.setSteps(_steps);
-    }
-  }
-
-  void _addNutrition() {
-    final label = _nutritionLabelC.text.trim();
-    final value = _nutritionValueC.text.trim();
-    if (label.isNotEmpty && value.isNotEmpty) {
-      setState(() {
-        _nutritions.add({'label': label, 'value': value});
-        _nutritionLabelC.clear();
-        _nutritionValueC.clear();
-      });
-      widget.controller.setNutritions(_nutritions);
-    }
-  }
+  final List<String> _ingredients = [];
+  final List<String> _steps = [];
+  final List<Map<String, String>> _nutritions = [];
 
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
@@ -71,7 +32,7 @@ class _CreateRecipeViewState extends State<CreateRecipeView> {
       hintStyle: GoogleFonts.poppins(fontSize: 13.5, color: Colors.grey[400]),
       filled: true,
       fillColor: const Color(0xFFF9FAFB),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
@@ -79,6 +40,166 @@ class _CreateRecipeViewState extends State<CreateRecipeView> {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(color: Color(0xFF4CAF50), width: 1.2),
+      ),
+    );
+  }
+
+  // ===== DIALOG MULTI-LINE UNTUK BAHAN / INSTRUKSI =====
+  void _showAddMultiLineDialog({
+    required String title,
+    required void Function(List<String>) onSave,
+    String hint = '',
+  }) {
+    final textC = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        child: Container(
+          padding: const EdgeInsets.all(18),
+          width: MediaQuery.of(context).size.width * 0.9,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.poppins(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 14),
+              TextField(
+                controller: textC,
+                decoration: InputDecoration(
+                  hintText: hint,
+                  hintStyle: GoogleFonts.poppins(
+                    fontSize: 13.5,
+                    color: Colors.grey[400],
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 14,
+                  ),
+                ),
+                maxLines: 6,
+                keyboardType: TextInputType.multiline,
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('Batal', style: GoogleFonts.poppins()),
+                  ),
+                  const SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (textC.text.trim().isEmpty) return;
+                      final lines = textC.text
+                          .split('\n')
+                          .map((e) => e.trim())
+                          .where((e) => e.isNotEmpty)
+                          .toList();
+                      onSave(lines);
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4CAF50),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 22,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: Text(
+                      'Simpan',
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ===== DIALOG NUTRISI =====
+  void _showAddNutritionDialog({
+    required void Function(String label, String value) onSave,
+  }) {
+    final labelC = TextEditingController();
+    final valueC = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        child: Container(
+          padding: const EdgeInsets.all(18),
+          width: MediaQuery.of(context).size.width * 0.9,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Tambah Nutrisi',
+                style: GoogleFonts.poppins(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 14),
+              TextField(
+                controller: labelC,
+                decoration: _inputDecoration('Label (cth: Protein)'),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: valueC,
+                decoration: _inputDecoration('Nilai'),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('Batal', style: GoogleFonts.poppins()),
+                  ),
+                  const SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (labelC.text.trim().isEmpty) return;
+                      onSave(labelC.text.trim(), valueC.text.trim());
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4CAF50),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 22,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: Text(
+                      'Simpan',
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -94,7 +215,6 @@ class _CreateRecipeViewState extends State<CreateRecipeView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ===== HEADER =====
               Center(
                 child: Text(
                   'Buat Resep',
@@ -106,20 +226,12 @@ class _CreateRecipeViewState extends State<CreateRecipeView> {
                 ),
               ),
               const SizedBox(height: 20),
-
-              // ===== INFO BOX =====
               _buildInfoBox(),
               const SizedBox(height: 20),
-
-              // ===== INGREDIENTS =====
               _buildIngredientsBox(),
               const SizedBox(height: 20),
-
-              // ===== STEPS =====
               _buildStepsBox(),
               const SizedBox(height: 20),
-
-              // ===== NUTRITION =====
               _buildNutritionBox(),
             ],
           ),
@@ -128,7 +240,7 @@ class _CreateRecipeViewState extends State<CreateRecipeView> {
     );
   }
 
-  // ===== BOX INFORMASI DASAR =====
+  // ==== INFO BOX ====
   Widget _buildInfoBox() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -201,16 +313,7 @@ class _CreateRecipeViewState extends State<CreateRecipeView> {
                     setState(() => _selectedCountry = v);
                     widget.controller.setCountry(v ?? '');
                   },
-                  value:
-                      _selectedCountry != null &&
-                          [
-                            'Indonesia',
-                            'Italia',
-                            'Jepang',
-                            'India',
-                          ].contains(_selectedCountry)
-                      ? _selectedCountry
-                      : null,
+                  value: _selectedCountry,
                   borderRadius: BorderRadius.circular(14),
                   icon: const Icon(
                     HugeIcons.strokeRoundedArrowDown01,
@@ -245,11 +348,14 @@ class _CreateRecipeViewState extends State<CreateRecipeView> {
                       Switch(
                         value: _isHalal,
                         activeColor: const Color(0xFF4CAF50),
+                        inactiveThumbColor: Colors.white,
+                        inactiveTrackColor: const Color(0xFFE0E0E0),
                         onChanged: (v) {
                           setState(() => _isHalal = v);
                           widget.controller.setHalal(v);
                         },
                       ),
+
                     ],
                   ),
                 ),
@@ -263,7 +369,13 @@ class _CreateRecipeViewState extends State<CreateRecipeView> {
                 child: TextField(
                   controller: _timeC,
                   keyboardType: TextInputType.number,
-                  decoration: _inputDecoration('Waktu (menit)'),
+                  decoration: _inputDecoration('Waktu').copyWith(
+                    suffixText: 'menit',
+                    suffixStyle: GoogleFonts.poppins(
+                      color: Colors.grey[600],
+                      fontSize: 13.5,
+                    ),
+                  ),
                   onChanged: (v) => widget.controller.setTime(v),
                 ),
               ),
@@ -272,275 +384,107 @@ class _CreateRecipeViewState extends State<CreateRecipeView> {
                 child: TextField(
                   controller: _servingC,
                   keyboardType: TextInputType.number,
-                  decoration: _inputDecoration('Porsi (orang)'),
+                  decoration: _inputDecoration('Porsi').copyWith(
+                    suffixText: 'porsi',
+                    suffixStyle: GoogleFonts.poppins(
+                      color: Colors.grey[600],
+                      fontSize: 13.5,
+                    ),
+                  ),
                   onChanged: (v) => widget.controller.setServing(v),
                 ),
               ),
             ],
           ),
+
         ],
       ),
     );
   }
 
-  // ===== BOX BAHAN =====
+  // ==== BAHAN ====
   Widget _buildIngredientsBox() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 18, 16, 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Bahan-bahan',
-            style: GoogleFonts.poppins(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _ingredientC,
-            onSubmitted: (_) => _addIngredient(),
-            decoration: _inputDecoration('Tambahkan bahan...'),
-          ),
-          const SizedBox(height: 14),
-          if (_ingredients.isEmpty)
-            Text(
-              'Belum ada bahan yang ditambahkan',
-              style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey[500]),
-            )
-          else
-            Column(
-              children: List.generate(_ingredients.length, (i) {
-                final item = _ingredients[i];
-                return Container(
-                  margin: const EdgeInsets.symmetric(vertical: 3),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFCFCFD),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade200, width: 0.8),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-                        margin: const EdgeInsets.only(right: 10),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[400],
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          item,
-                          style: GoogleFonts.poppins(
-                            fontSize: 13.5,
-                            color: Colors.grey[700],
-                            height: 1.4,
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() => _ingredients.removeAt(i));
-                          widget.controller.setIngredients(_ingredients);
-                        },
-                        child: Icon(
-                          HugeIcons.strokeRoundedXVariableCircle,
-                          size: 18,
-                          color: Colors.grey[500],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-            ),
-        ],
+    return _buildSectionMultiLine(
+      title: 'Bahan-bahan',
+      items: _ingredients,
+      bullet: true,
+      onAdd: () => _showAddMultiLineDialog(
+        title: 'Tambah Bahan-bahan',
+        hint: 'Tulis setiap bahan di baris baru',
+        onSave: (lines) {
+          setState(() => _ingredients.addAll(lines));
+          widget.controller.setIngredients(_ingredients);
+        },
       ),
     );
   }
 
-  // ===== BOX LANGKAH =====
+  // ==== LANGKAH ====
   Widget _buildStepsBox() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 18, 16, 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Langkah-langkah',
-            style: GoogleFonts.poppins(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _stepC,
-            onSubmitted: (_) => _addStep(),
-            decoration: _inputDecoration('Tambahkan langkah...'),
-          ),
-          const SizedBox(height: 14),
-          if (_steps.isEmpty)
-            Text(
-              'Belum ada langkah yang ditambahkan',
-              style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey[500]),
-            )
-          else
-            Column(
-              children: List.generate(_steps.length, (i) {
-                final step = _steps[i];
-                return Container(
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFCFCFD),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade200, width: 0.8),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        height: 26,
-                        width: 26,
-                        alignment: Alignment.center,
-                        margin: const EdgeInsets.only(right: 10, top: 3),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF4CAF50).withOpacity(0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Text(
-                          '${i + 1}',
-                          style: GoogleFonts.poppins(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF4CAF50),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 3),
-                          child: Text(
-                            step,
-                            style: GoogleFonts.poppins(
-                              fontSize: 13.5,
-                              color: Colors.grey[700],
-                              height: 1.5,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() => _steps.removeAt(i));
-                          widget.controller.setSteps(_steps);
-                        },
-                        child: Icon(
-                          HugeIcons.strokeRoundedXVariableCircle,
-                          size: 18,
-                          color: Colors.grey[500],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-            ),
-        ],
+    return _buildSectionMultiLine(
+      title: 'Langkah-langkah',
+      items: _steps,
+      isNumbered: true,
+      onAdd: () => _showAddMultiLineDialog(
+        title: 'Tambah Langkah',
+        hint: 'Tulis setiap langkah di baris baru',
+        onSave: (lines) {
+          setState(() => _steps.addAll(lines));
+          widget.controller.setSteps(_steps);
+        },
       ),
     );
   }
 
-  // ===== BOX NUTRISI =====
+  // ==== NUTRISI ====
   Widget _buildNutritionBox() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 18, 16, 20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 3),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Informasi Nutrisi',
-            style: GoogleFonts.poppins(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 12),
-          // INPUT LABEL + ANGKA
           Row(
             children: [
               Expanded(
-                flex: 2,
-                child: TextField(
-                  controller: _nutritionLabelC,
-                  onSubmitted: (_) => _addNutrition(),
-                  decoration: _inputDecoration('Label (cth: Protein)'),
+                child: Text(
+                  'Informasi Nutrisi',
+                  style: GoogleFonts.poppins(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                flex: 1,
-                child: TextField(
-                  controller: _nutritionValueC,
-                  keyboardType: TextInputType.number,
-                  onSubmitted: (_) => _addNutrition(),
-                  decoration: _inputDecoration('Nilai'),
+              GestureDetector(
+                onTap: () => _showAddNutritionDialog(
+                  onSave: (label, value) {
+                    setState(
+                      () => _nutritions.add({'label': label, 'value': value}),
+                    );
+                    widget.controller.setNutritions(_nutritions);
+                  },
+                ),
+                child: Container(
+                  height: 28,
+                  width: 28,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF4CAF50),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    HugeIcons.strokeRoundedAdd01,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
           if (_nutritions.isEmpty)
             Text(
               'Belum ada data nutrisi ditambahkan',
@@ -577,11 +521,11 @@ class _CreateRecipeViewState extends State<CreateRecipeView> {
                         flex: 1,
                         child: Text(
                           item['value']!,
+                          textAlign: TextAlign.right,
                           style: GoogleFonts.poppins(
                             fontSize: 13.5,
                             color: Colors.grey[700],
                           ),
-                          textAlign: TextAlign.right,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -589,6 +533,148 @@ class _CreateRecipeViewState extends State<CreateRecipeView> {
                         onTap: () {
                           setState(() => _nutritions.removeAt(i));
                           widget.controller.setNutritions(_nutritions);
+                        },
+                        child: Icon(
+                          HugeIcons.strokeRoundedXVariableCircle,
+                          size: 18,
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // ==== GENERIC SECTION UNTUK BAHAN / LANGKAH MULTI-LINE ====
+  Widget _buildSectionMultiLine({
+    required String title,
+    required List<String> items,
+    bool isNumbered = false,
+    bool bullet = false,
+    required VoidCallback onAdd,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: onAdd,
+                child: Container(
+                  height: 28,
+                  width: 28,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF4CAF50),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    HugeIcons.strokeRoundedAdd01,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (items.isEmpty)
+            Text(
+              'Belum ada item ditambahkan',
+              style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey[500]),
+            )
+          else
+            Column(
+              children: List.generate(items.length, (i) {
+                final item = items[i];
+                return Container(
+                  margin: const EdgeInsets.symmetric(vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFCFCFD),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.grey.shade200, width: 0.8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.03),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (isNumbered)
+                        Container(
+                          height: 22,
+                          width: 22,
+                          alignment: Alignment.center,
+                          margin: const EdgeInsets.only(right: 10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF2F3F5),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            '${i + 1}',
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                        ),
+                      if (bullet && !isNumbered)
+                        Container(
+                          width: 6,
+                          height: 6,
+                          margin: const EdgeInsets.only(right: 10, top: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[400],
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      Expanded(
+                        child: Text(
+                          item,
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            color: Colors.grey[700],
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() => items.removeAt(i));
+                          if (title == 'Bahan-bahan')
+                            widget.controller.setIngredients(_ingredients);
+                          if (title == 'Langkah-langkah')
+                            widget.controller.setSteps(_steps);
                         },
                         child: Icon(
                           HugeIcons.strokeRoundedXVariableCircle,
