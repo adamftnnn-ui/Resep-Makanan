@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import '/controllers/profil_controller.dart';
+import '/controllers/create_resep_controller.dart';
 import '../views/home_view.dart';
-import '../views/create_recipe_view.dart';
+import '../views/create_resep_view.dart';
 import '../views/chat_view.dart';
 import '../views/profile_view.dart';
 
@@ -15,10 +16,11 @@ class MainController extends StatefulWidget {
 
 class _MainControllerState extends State<MainController> {
   int _selectedIndex = 0;
+  final createController = CreateResepController();
 
-  final List<Widget> _pages = [
+  late final List<Widget> _pages = [
     HomeView(),
-    CreateRecipeView(),
+    CreateRecipeView(controller: createController),
     ChatView(),
     ProfileView(controller: ProfilController()),
   ];

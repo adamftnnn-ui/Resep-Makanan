@@ -5,8 +5,13 @@ import '../views/components/search_bar.dart';
 
 class DaftarResepController extends StatefulWidget {
   final String initialKeyword;
+  final String title;
 
-  const DaftarResepController({super.key, required this.initialKeyword});
+  const DaftarResepController({
+    super.key,
+    required this.initialKeyword,
+    this.title = 'Daftar Resep',
+  });
 
   @override
   State<DaftarResepController> createState() => _DaftarResepControllerState();
@@ -183,7 +188,7 @@ class _DaftarResepControllerState extends State<DaftarResepController>
                   Expanded(
                     child: Center(
                       child: Text(
-                        'Daftar Resep',
+                        widget.title,
                         style: GoogleFonts.poppins(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,

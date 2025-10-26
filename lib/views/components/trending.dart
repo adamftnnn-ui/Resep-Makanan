@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '/controllers/daftar_resep_controller.dart';
 import 'card.dart';
 
 class HomeTrending extends StatelessWidget {
@@ -107,17 +108,31 @@ class HomeTrending extends StatelessWidget {
                   letterSpacing: 0.2,
                 ),
               ),
-              Text(
-                "Lihat semua",
-                style: GoogleFonts.poppins(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: const Color(0xFF4CAF50),
-                  letterSpacing: 0.2,
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => DaftarResepController(
+                        initialKeyword: '', // Kosongkan atau bisa pakai filter
+                        title: 'Resep Trending', // title khusus
+                      ),
+                    ),
+                  );
+                },
+                child: Text(
+                  "Lihat semua",
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF4CAF50),
+                    letterSpacing: 0.2,
+                  ),
                 ),
               ),
             ],
           ),
+
 
           const SizedBox(height: 14),
 
